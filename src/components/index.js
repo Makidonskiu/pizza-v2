@@ -6,6 +6,8 @@ import { PizzaBlock } from "./PizzaBlock/PizzaBlock";
 import { Skeleton } from "./PizzaBlock/Skeleton";
 import { Pagination } from "./Pagination";
 import { NotFound } from "./NotFoundBlock/NotFound";
+import { CartItem } from "./CartItem";
+import { CartEmpty } from "./CartEmpty";
 
 export {
     Header,
@@ -15,5 +17,7 @@ export {
     PizzaBlock,
     Skeleton,
     Pagination,
-    NotFound
+    NotFound,
+    CartItem,
+    CartEmpty
 }

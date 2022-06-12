@@ -13,7 +13,7 @@ export const sortPizza = [
 
 export const Sort = React.memo(() => {
   const dispatch = useDispatch();
-
+  const sortRef = React.useRef()
   
   const sort = useSelector((state) => state.filter.sort);
 
@@ -24,8 +24,19 @@ export const Sort = React.memo(() => {
     setOpenSort(false);
   };
 
+  React.useEffect( () => {
+    const handleClickOutside = event => {
+      if(!event.path.includes(sortRef.current)) setOpenSort(false);
+    }
+    document.body.addEventListener('click', handleClickOutside)
+
+    return () => {
+      document.body.removeEventListener('click', handleClickOutside)
+    }
+  }, [])
+
   return (
-    <div className="sort">
+    <div ref={sortRef} className="sort">
       <div className="sort__label">
         <svg
           width="10"

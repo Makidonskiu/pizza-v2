@@ -1,24 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import qs from 'qs';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import { Categories, Sort, sortPizza, PizzaBlock, Skeleton, Pagination } from '../components/index';
 import { SearchContext } from '../App';
 import { setCategory, setCurrentPage, setFilters } from '../redux/Slices/filterSlice';
+import { fetchPizza } from '../redux/Slices/pizzaSlice';
 
 export const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
-  
+
   const { categoryId, sort, currentPage } = useSelector((state) => state.filter);
+  const { items, status } = useSelector((state) => state.pizza);
 
   const { searchValue } = React.useContext(SearchContext);
-  const [pizzas, setPizzas] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(true);
 
   const onClickCategory = (id) => {
     dispatch(setCategory(id));
@@ -28,55 +27,53 @@ export const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
-  const fetchPizzas = () => {
-    setIsLoaded(true);
-
+  const getPizzas = async () => {
     const order = sort.sortProperty.includes('-') ? 'asc' : 'desc';
     const sortBy = sort.sortProperty.replace('-', '');
     const category = categoryId > 0 ? `category=${categoryId}` : '';
     const search = searchValue ? `search=${searchValue}` : '';
 
-    axios
-      .get(
-        `https://628a9ad77886bbbb37a9e118.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}&${search}`,
-      )
-      .then((res) => {
-        setPizzas(res.data);
-        setIsLoaded(false);
-      });
+    dispatch(
+      fetchPizza({
+        order,
+        sortBy,
+        category,
+        search,
+        currentPage,
+      }),
+    );
   };
 
-  //Если изменили параметры и был первыйц рендер то покажи url
-  useEffect(() => {
-    if (isMounted.current) {
-      const queryString = qs.stringify({
-        sortProperty: sort.sortProperty,
-        categoryId,
-        currentPage,
-      });
+  // Если изменили параметры и был первыйц рендер то покажи url
+  // useEffect(() => {
+  //   if (isMounted.current) {
+  //     const queryString = qs.stringify({
+  //       sortProperty: sort.sortProperty,
+  //       categoryId,
+  //       currentPage,
+  //     });
 
-      navigate(`?${queryString}`);
-    }
-    isMounted.current = true;
-  }, [categoryId, sort.sortProperty, currentPage]);
+  //     navigate(`?${queryString}`);
+  //   }
+  //   isMounted.current = true;
+  // }, [categoryId, sort.sortProperty, currentPage]);
 
+  // // если был первый рендер, то проверяем url и сохраняем в редакс
+  // useEffect(() => {
+  //   if (window.location.search) {
+  //     const params = qs.parse(window.location.search.substring(1));
 
-  // если был первый рендер, то проверяем url и сохраняем в редакс
-  useEffect(() => {
-    if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1));
+  //     const sort = sortPizza.find((obj) => obj.sortProperty === params.sortProperty);
 
-      const sort = sortPizza.find((obj) => obj.sortProperty === params.sortProperty);
-
-      dispatch(
-        setFilters({
-          ...params,
-          sort,
-        }),
-      );
-      isSearch.current = true;
-    }
-  }, []);
+  //     dispatch(
+  //       setFilters({
+  //         ...params,
+  //         sort,
+  //       }),
+  //     );
+  //     isSearch.current = true;
+  //   }
+  // }, []);
 
   useEffect(() => {
     // ************************* При переходе на главную страницу будет скролить верх ******************
@@ -84,7 +81,7 @@ export const Home = () => {
 
     if (!isSearch.current) {
       // почему то не рабоатет  ( !isSearch.current ) - избавляет от двойного запроса на сервер №15 урок
-      fetchPizzas();
+      getPizzas();
     }
 
     isSearch.current = false;
@@ -92,7 +89,7 @@ export const Home = () => {
 
   const skeleton = [...new Array(11)].map((_, i) => <Skeleton key={i} />);
 
-  const pizza = pizzas.map((pizza) => <PizzaBlock key={pizza.id} {...pizza} />);
+  const pizza = items.map((pizza) => <PizzaBlock key={pizza.id} {...pizza} />);
 
   return (
     <div className="content">
@@ -102,7 +99,16 @@ export const Home = () => {
           <Sort />
         </div>
         <h2 className="content__title">Все пиццы</h2>
-        <div className="content__items">{isLoaded ? skeleton : pizza}</div>
+        {status === 'error' ? (
+          <div className="content__error-info">
+            <h2>
+              Произошла ошибка <span>😕</span>
+            </h2>
+            <p>К сожелению произошла ошибка, не удалось отобразить пиццы!!!</p>
+          </div>
+        ) : (
+          <div className="content__items">{status === 'loading' ? skeleton : pizza}</div>
+        )}
         <Pagination currentPage={currentPage} onChangePage={onChangePage} />
       </div>
     </div>
