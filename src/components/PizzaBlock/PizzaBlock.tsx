@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem } from '../../redux/Slices/cartSlice';
+import { addItem, selectCartItemById } from '../../redux/Slices/cartSlice';
 
 const pizzaTypes = ['тонкое', 'традиционное'];
 
-export const PizzaBlock = ({ id, imageUrl, name, types, sizes, price, category, rating }) => {
+type PizzaBlockProps = {id: string; imageUrl: string; name: string; types: number[]; sizes: number[]; price: number;}
+
+export const PizzaBlock: React.FC<PizzaBlockProps> = ({ id, imageUrl, name, types, sizes, price }) => {
   const dispatch = useDispatch();
-  const cartItem = useSelector((state) => state.cart.items.find(obj  => obj.id === id));
+  const cartItem = useSelector(selectCartItemById(id));
   const addedCount = cartItem ? cartItem.count : 0;
 
   const [activeType, setActiveType] = useState(0);

@@ -1,6 +1,6 @@
-import { Home } from "./Home";
-import { Cart } from "./Cart";
-import { Error } from "./Error";
+import { Home } from "./Home.tsx";
+import { Cart } from "./Cart.tsx";
+import { Error } from "./Error.tsx";
 
 export {
     Home,

@@ -1,13 +1,20 @@
 import React from 'react';
 import logoSvg from '../assets/img/pizza-logo.svg';
-import { Link } from 'react-router-dom';
-import { Search } from './Search';
+import { Link, useLocation } from 'react-router-dom';
+import { Search } from './Search/index.tsx';
 import { useSelector } from 'react-redux';
+import { selectCart } from '../redux/Slices/cartSlice';
 
-export const Header = () => {
-  const {totalPrice, items} = useSelector(state => state.cart)
+export const Header: React.FC = () => {
+  const { totalPrice, items } = useSelector(selectCart);
+// ********************************************************* просто для примера ********************************************
+  const pathname = window.location.pathname; // ищет на какой ты сейчас url строке , это просто для примера
+  console.log(pathname);
 
-  const totalCount = items.reduce((sum, item)=> sum + item.count, 0)
+  const locatin = useLocation(); // аналог window.location , этот вариант используй если нужно что-тоскрыть при переходе на другую страницу
+  // *****************************************************************************************************
+
+  const totalCount = items.reduce((sum: number, item: any) => sum + item.count, 0);
   return (
     <div className="header">
       <div className="container">
@@ -20,7 +27,7 @@ export const Header = () => {
             </div>
           </div>
         </Link>
-        <Search />
+        {locatin.pathname !== '/cart' && <Search />}
         <div className="header__cart">
           <Link to="/cart">
             <button className="button button--cart">

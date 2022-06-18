@@ -2,7 +2,7 @@ import React from 'react'
 
 import styles from './NotFoundBlock.module.scss'
 
-export const NotFound = () => {
+export const NotFound: React.FC = () => {
   return (
     <div className={styles.root}>
         <h1>Вы прошли по ошибочной ссылке !!!!</h1>

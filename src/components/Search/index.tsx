@@ -1,30 +1,34 @@
 import React from 'react';
 import debounce from 'lodash.debounce';
-import { SearchContext } from '../../App';
+import { useDispatch } from 'react-redux';
 
 import style from './Search.module.scss';
+import { setSearchValue } from '../../redux/Slices/filterSlice';
 
-export const Search = () => {
-  const ref = React.useRef();
+export const Search: React.FC = () => {
+  const dispatch = useDispatch()
+  const ref = React.useRef<HTMLInputElement>(null);
   const [value, setValue] = React.useState('');
-  const { searchValue, setSearchValue } = React.useContext(SearchContext);
 // *************** отстрочка запрса в инпуте с помощю debounce ***************************
   const updateSearchValue = React.useCallback(
-    debounce((str) => {
-      setSearchValue(str);
+    debounce((str: string) => {
+      dispatch(setSearchValue(str));
     }, 350),
     [],
   );
 // *************** конролируемый инпут и его отстрочка в поиске **************************
-  const onChangeInput = (e) => {
+  const onChangeInput = (e: any) => {
     setValue(e.target.value);
     updateSearchValue(e.target.value)
   };
 // ******* удаляет текст из инпута *******************************************************
   const onClickClear = () => {
     setValue('')
-    setSearchValue('');
-    ref.current.focus();
+    dispatch(setSearchValue(''));
+    // if(ref.current){
+    //   ref.current.focus();
+    // }
+    ref.current?.focus(); // или вариант выше 
   };
 
   return (
@@ -42,7 +46,7 @@ export const Search = () => {
         className={style.input}
         placeholder="Поиск пиццы ..."
       />
-      {searchValue && (
+      {value && (
         <svg
           onClick={onClickClear}
           className={style.closeIcon}

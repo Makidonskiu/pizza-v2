@@ -3,27 +3,31 @@ import qs from 'qs';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Categories, Sort, sortPizza, PizzaBlock, Skeleton, Pagination } from '../components/index';
-import { SearchContext } from '../App';
+// import { Categories, Sort, sortPizza, PizzaBlock, Skeleton, Pagination } from '../components/index';
+import { Categories } from '../components/Categories.tsx'
+import { Sort } from '../components/Sort.tsx'
+import { sortPizza } from '../components/Sort.tsx'
+import { PizzaBlock } from '../components/PizzaBlock/PizzaBlock.tsx'
+import { Skeleton } from '../components/PizzaBlock/Skeleton.tsx'
+import { Pagination } from '../components/Pagination/index.tsx'
+
 import { setCategory, setCurrentPage, setFilters } from '../redux/Slices/filterSlice';
 import { fetchPizza } from '../redux/Slices/pizzaSlice';
 
-export const Home = () => {
+export const Home: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
 
-  const { categoryId, sort, currentPage } = useSelector((state) => state.filter);
-  const { items, status } = useSelector((state) => state.pizza);
+  const { categoryId, sort, currentPage, searchValue } = useSelector((state: any) => state.filter);
+  const { items, status } = useSelector((state: any) => state.pizza);
 
-  const { searchValue } = React.useContext(SearchContext);
-
-  const onClickCategory = (id) => {
+  const onClickCategory = (id: number) => {
     dispatch(setCategory(id));
   };
 
-  const onChangePage = (number) => {
+  const onChangePage = (number: number) => {
     dispatch(setCurrentPage(number));
   };
 
@@ -45,22 +49,22 @@ export const Home = () => {
   };
 
   // Если изменили параметры и был первыйц рендер то покажи url
-  // useEffect(() => {
-  //   if (isMounted.current) {
-  //     const queryString = qs.stringify({
-  //       sortProperty: sort.sortProperty,
-  //       categoryId,
-  //       currentPage,
-  //     });
+  useEffect(() => {
+    if (isMounted.current) {
+      const queryString = qs.stringify({
+        sortProperty: sort.sortProperty,
+        categoryId,
+        currentPage,
+      });
 
-  //     navigate(`?${queryString}`);
-  //   }
-  //   isMounted.current = true;
-  // }, [categoryId, sort.sortProperty, currentPage]);
+      navigate(`/?${queryString}`);
+    }
+    isMounted.current = true;
+  }, [categoryId, sort.sortProperty, currentPage]);
 
-  // // если был первый рендер, то проверяем url и сохраняем в редакс
+  // если был первый рендер, то проверяем url и сохраняем в редакс
   // useEffect(() => {
-  //   if (window.location.search) {
+  //   if (!window.location.search) {
   //     const params = qs.parse(window.location.search.substring(1));
 
   //     const sort = sortPizza.find((obj) => obj.sortProperty === params.sortProperty);
@@ -89,7 +93,7 @@ export const Home = () => {
 
   const skeleton = [...new Array(11)].map((_, i) => <Skeleton key={i} />);
 
-  const pizza = items.map((pizza) => <PizzaBlock key={pizza.id} {...pizza} />);
+  const pizza = items.map((pizza: any) => <PizzaBlock key={pizza.id} {...pizza} />);
 
   return (
     <div className="content">
